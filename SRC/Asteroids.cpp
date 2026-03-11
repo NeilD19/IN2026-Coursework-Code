@@ -20,6 +20,8 @@ Asteroids::Asteroids(int argc, char *argv[])
 {
 	mLevel = 0;
 	mAsteroidCount = 0;
+	mState = MENU;
+	mDifficulty = NORMAL;
 }
 
 /** Destructor. */
@@ -58,13 +60,10 @@ void Asteroids::Start()
 	Animation *asteroid1_anim = AnimationManager::GetInstance().CreateAnimationFromFile("asteroid1", 128, 8192, 128, 128, "asteroid1_fs.png");
 	Animation *spaceship_anim = AnimationManager::GetInstance().CreateAnimationFromFile("spaceship", 128, 128, 128, 128, "spaceship_fs.png");
 
-	// Create a spaceship and add it to the world
-	mGameWorld->AddObject(CreateSpaceship());
 	// Create some asteroids and add them to the world
 	CreateAsteroids(10);
 
-	//Create the GUI
-	CreateGUI();
+	CreateMenu();
 
 	// Add a player (watcher) to the game world
 	mGameWorld->AddListener(&mPlayer);
@@ -74,6 +73,19 @@ void Asteroids::Start()
 
 	// Start the game
 	GameSession::Start();
+}
+
+/** Start the game */
+void Asteroids::StartGame()
+{
+	mState = PLAYING;
+
+	HideMenu();
+
+	mGameWorld->AddObject(CreateSpaceship());
+
+	//Create the GUI
+	CreateGUI();
 }
 
 /** Stop the current game. */
@@ -87,13 +99,23 @@ void Asteroids::Stop()
 
 void Asteroids::OnKeyPressed(uchar key, int x, int y)
 {
-	switch (key)
+	if (mState == PLAYING)
 	{
-	case ' ':
-		mSpaceship->Shoot();
-		break;
-	default:
-		break;
+		switch (key)
+		{
+		case ' ':
+			mSpaceship->Shoot(); break;
+		default: break;
+		}
+	}
+	else if (mState == MENU)
+	{
+		switch (key)
+		{
+		case ' ':
+			StartGame(); break;
+		default: break;
+		}
 	}
 }
 
@@ -101,32 +123,57 @@ void Asteroids::OnKeyReleased(uchar key, int x, int y) {}
 
 void Asteroids::OnSpecialKeyPressed(int key, int x, int y)
 {
-	switch (key)
+	if (mState == PLAYING)
 	{
-	// If up arrow key is pressed start applying forward thrust
-	case GLUT_KEY_UP: mSpaceship->Thrust(10); break;
-	// If left arrow key is pressed start rotating anti-clockwise
-	case GLUT_KEY_LEFT: mSpaceship->Rotate(90); break;
-	// If right arrow key is pressed start rotating clockwise
-	case GLUT_KEY_RIGHT: mSpaceship->Rotate(-90); break;
-	// Default case - do nothing
-	default: break;
+		switch (key)
+		{
+			// If up arrow key is pressed start applying forward thrust
+		case GLUT_KEY_UP: mSpaceship->Thrust(10); break;
+			// If left arrow key is pressed start rotating anti-clockwise
+		case GLUT_KEY_LEFT: mSpaceship->Rotate(90); break;
+			// If right arrow key is pressed start rotating clockwise
+		case GLUT_KEY_RIGHT: mSpaceship->Rotate(-90); break;
+			// Default case - do nothing
+		default: break;
+		}
+	}
+	else if (mState == MENU)
+	{
+		switch (key)
+		{
+		case GLUT_KEY_LEFT:
+			mDifficulty = NORMAL;
+			SetDifficulty("NORMAL");
+			break;
+		case GLUT_KEY_RIGHT:
+			mDifficulty = HARD;
+			SetDifficulty("HARD");
+			break;
+		default: break;
+		}
 	}
 }
 
 void Asteroids::OnSpecialKeyReleased(int key, int x, int y)
 {
-	switch (key)
+	if (mState == PLAYING)
 	{
-	// If up arrow key is released stop applying forward thrust
-	case GLUT_KEY_UP: mSpaceship->Thrust(0); break;
-	// If left arrow key is released stop rotating
-	case GLUT_KEY_LEFT: mSpaceship->Rotate(0); break;
-	// If right arrow key is released stop rotating
-	case GLUT_KEY_RIGHT: mSpaceship->Rotate(0); break;
-	// Default case - do nothing
-	default: break;
-	} 
+		switch (key)
+		{
+			// If up arrow key is released stop applying forward thrust
+		case GLUT_KEY_UP: mSpaceship->Thrust(0); break;
+			// If left arrow key is released stop rotating
+		case GLUT_KEY_LEFT: mSpaceship->Rotate(0); break;
+			// If right arrow key is released stop rotating
+		case GLUT_KEY_RIGHT: mSpaceship->Rotate(0); break;
+			// Default case - do nothing
+		default: break;
+		}
+	}
+	else if (mState == MENU)
+	{
+		
+	}
 }
 
 
@@ -246,6 +293,46 @@ void Asteroids::CreateGUI()
 
 }
 
+void Asteroids::CreateMenu()
+{
+	// Create start label
+	mStartLabel = shared_ptr<GUILabel>(new GUILabel("Press SPACE to Start"));
+	mStartLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
+	mStartLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_MIDDLE);
+	shared_ptr<GUIComponent> start_label_component = static_pointer_cast<GUIComponent>(mStartLabel);
+	mGameDisplay->GetContainer()->AddComponent(start_label_component, GLVector2f(0.5f, 0.4f));
+
+	// Create difficulty label
+	mDifficultyLabel = shared_ptr<GUILabel>(new GUILabel("Difficulty: NORMAL"));
+	mDifficultyLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
+	mDifficultyLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_TOP);
+	shared_ptr<GUIComponent> difficulty_label_component = static_pointer_cast<GUIComponent>(mDifficultyLabel);
+	mGameDisplay->GetContainer()->AddComponent(difficulty_label_component, GLVector2f(0.5f, 0.6f));
+
+	// Create instructions labels
+	mInstructionsTitleLabel = shared_ptr<GUILabel>(new GUILabel("Instructions:"));
+	mInstructionsTitleLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_TOP);
+	shared_ptr<GUIComponent> instructionsTitle_label_component = static_pointer_cast<GUIComponent>(mInstructionsTitleLabel);
+	mGameDisplay->GetContainer()->AddComponent(instructionsTitle_label_component, GLVector2f(0.f, 1.0f));
+	mInstructionsLabel1 = shared_ptr<GUILabel>(new GUILabel("1.Avoid the asteroids with the arrow keys"));
+	mInstructionsLabel1->SetVerticalAlignment(GUIComponent::GUI_VALIGN_TOP);
+	shared_ptr<GUIComponent> instructions_label1_component = static_pointer_cast<GUIComponent>(mInstructionsLabel1);
+	mGameDisplay->GetContainer()->AddComponent(instructions_label1_component, GLVector2f(0.f, 0.95f));
+	mInstructionsLabel2 = shared_ptr<GUILabel>(new GUILabel("2.Shoot with Space"));
+	mInstructionsLabel2->SetVerticalAlignment(GUIComponent::GUI_VALIGN_TOP);
+	shared_ptr<GUIComponent> instructions_label2_component = static_pointer_cast<GUIComponent>(mInstructionsLabel2);
+	mGameDisplay->GetContainer()->AddComponent(instructions_label2_component, GLVector2f(0.f, 0.9f));
+}
+
+void Asteroids::HideMenu()
+{
+	mStartLabel->SetVisible(false);
+	mDifficultyLabel->SetVisible(false);
+	mInstructionsTitleLabel->SetVisible(false);
+	mInstructionsLabel1->SetVisible(false);
+	mInstructionsLabel2->SetVisible(false);
+}
+
 void Asteroids::OnScoreChanged(int score)
 {
 	// Format the score message using an string-based stream
@@ -280,6 +367,14 @@ void Asteroids::OnPlayerKilled(int lives_left)
 	}
 }
 
+void Asteroids::SetDifficulty(std::string difficulty)
+{
+	std::ostringstream msg_stream;
+	msg_stream << "Difficulty: " << difficulty;
+	std::string difficultyText = msg_stream.str();
+	mDifficultyLabel->SetText(difficultyText);
+}
+
 shared_ptr<GameObject> Asteroids::CreateExplosion()
 {
 	Animation *anim_ptr = AnimationManager::GetInstance().GetAnimationByName("explosion");
@@ -291,7 +386,3 @@ shared_ptr<GameObject> Asteroids::CreateExplosion()
 	explosion->Reset();
 	return explosion;
 }
-
-
-
-

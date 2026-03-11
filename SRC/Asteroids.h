@@ -53,8 +53,23 @@ private:
 	shared_ptr<GUILabel> mLivesLabel;
 	shared_ptr<GUILabel> mGameOverLabel;
 
+	shared_ptr<GUILabel> mStartLabel;
+	shared_ptr<GUILabel> mDifficultyLabel;
+	shared_ptr<GUILabel> mInstructionsTitleLabel;
+	shared_ptr<GUILabel> mInstructionsLabel1;
+	shared_ptr<GUILabel> mInstructionsLabel2;
+	shared_ptr<GUILabel> mHighscoresLabel;
+
 	uint mLevel;
 	uint mAsteroidCount;
+
+	void StartGame();
+
+	void CreateMenu();
+	void HideMenu();
+
+	// Difficulty selector
+	void SetDifficulty(std::string difficulty);
 
 	void ResetSpaceship();
 	shared_ptr<GameObject> CreateSpaceship();
@@ -68,6 +83,12 @@ private:
 
 	ScoreKeeper mScoreKeeper;
 	Player mPlayer;
+
+	enum GameState { MENU, PLAYING };
+	GameState mState;
+
+	enum Difficulty { NORMAL, HARD };
+	Difficulty mDifficulty;
 };
 
 #endif
