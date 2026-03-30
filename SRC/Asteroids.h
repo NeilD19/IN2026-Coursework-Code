@@ -9,6 +9,8 @@
 #include "ScoreKeeper.h"
 #include "Player.h"
 #include "IPlayerListener.h"
+#include <vector>
+#include <algorithm>
 
 class GameObject;
 class Spaceship;
@@ -17,7 +19,7 @@ class GUILabel;
 class Asteroids : public GameSession, public IKeyboardListener, public IGameWorldListener, public IScoreListener, public IPlayerListener
 {
 public:
-	Asteroids(int argc, char *argv[]);
+	Asteroids(int argc, char* argv[]);
 	virtual ~Asteroids(void);
 
 	virtual void Start(void);
@@ -47,6 +49,10 @@ public:
 	// Override the default implementation of ITimerListener ////////////////////
 	void OnTimer(int value);
 
+	// Scores implementation
+	void LoadScores();
+	void SaveScore(const std::string& name, int score);
+
 private:
 	shared_ptr<Spaceship> mSpaceship;
 	shared_ptr<GUILabel> mScoreLabel;
@@ -58,7 +64,8 @@ private:
 	shared_ptr<GUILabel> mInstructionsTitleLabel;
 	shared_ptr<GUILabel> mInstructionsLabel1;
 	shared_ptr<GUILabel> mInstructionsLabel2;
-	shared_ptr<GUILabel> mHighscoresLabel;
+	shared_ptr<GUILabel> mHighscoresTitleLabel;
+	std::vector<shared_ptr<GUILabel>> mDisplayedScores;
 
 	uint mLevel;
 	uint mAsteroidCount;
@@ -76,7 +83,7 @@ private:
 	void CreateGUI();
 	void CreateAsteroids(const uint num_asteroids);
 	shared_ptr<GameObject> CreateExplosion();
-	
+
 	const static uint SHOW_GAME_OVER = 0;
 	const static uint START_NEXT_LEVEL = 1;
 	const static uint CREATE_NEW_PLAYER = 2;
@@ -89,6 +96,16 @@ private:
 
 	enum Difficulty { NORMAL, HARD };
 	Difficulty mDifficulty;
-};
 
+	struct ScoreEntry
+	{
+		std::string name;
+		int score;
+	};
+	shared_ptr<GUILabel> mEnterNameLabel;
+	shared_ptr<GUILabel> mNameInputLabel;
+	std::string mNameInput;
+	bool mEnteringName = false;
+	std::vector<ScoreEntry> mScores;
+};
 #endif

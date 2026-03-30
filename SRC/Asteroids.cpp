@@ -101,11 +101,38 @@ void Asteroids::OnKeyPressed(uchar key, int x, int y)
 {
 	if (mState == PLAYING)
 	{
-		switch (key)
+		if (mEnteringName)
 		{
-		case ' ':
-			mSpaceship->Shoot(); break;
-		default: break;
+			if (key == 13) // Press enter to save score
+			{
+				if (!mNameInput.empty())
+				{
+					SaveScore(mNameInput, mScoreKeeper.GetScore());
+					Stop();
+				}
+			}
+			else if (key == 8) // Backspace to delete
+			{
+				if (!mNameInput.empty())
+				{
+					mNameInput.pop_back();
+				}
+			}
+			else if (isalnum(key))
+			{
+				mNameInput += (char)key;
+			}
+			mNameInputLabel->SetText(mNameInput.empty() ? "_" : mNameInput);
+			return;
+		}
+		else
+		{
+			switch (key)
+			{
+			case ' ':
+				mSpaceship->Shoot(); break;
+			default: break;
+			}
 		}
 	}
 	else if (mState == MENU)
@@ -215,6 +242,24 @@ void Asteroids::OnTimer(int value)
 	if (value == SHOW_GAME_OVER)
 	{
 		mGameOverLabel->SetVisible(true);
+
+		// Initialise name input variables
+		mEnteringName = true;
+		mNameInput = "";
+
+		// Show enter name label
+		mEnterNameLabel = shared_ptr<GUILabel>(new GUILabel("Enter Name:"));
+		mEnterNameLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_RIGHT);
+		mEnterNameLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_MIDDLE);
+		shared_ptr<GUIComponent> enterName_label_component = static_pointer_cast<GUIComponent>(mEnterNameLabel);
+		mGameDisplay->GetContainer()->AddComponent(enterName_label_component, GLVector2f(0.5f, 0.4f));
+
+		// Input display
+		mNameInputLabel = shared_ptr<GUILabel>(new GUILabel("_"));
+		mNameInputLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_LEFT);
+		mNameInputLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_MIDDLE);
+		shared_ptr<GUIComponent> nameInput_label_component = static_pointer_cast<GUIComponent>(mNameInputLabel);
+		mGameDisplay->GetContainer()->AddComponent(nameInput_label_component, GLVector2f(0.51f, 0.4f));
 	}
 
 }
@@ -322,6 +367,26 @@ void Asteroids::CreateMenu()
 	mInstructionsLabel2->SetVerticalAlignment(GUIComponent::GUI_VALIGN_TOP);
 	shared_ptr<GUIComponent> instructions_label2_component = static_pointer_cast<GUIComponent>(mInstructionsLabel2);
 	mGameDisplay->GetContainer()->AddComponent(instructions_label2_component, GLVector2f(0.f, 0.9f));
+
+	LoadScores();
+	mHighscoresTitleLabel = shared_ptr<GUILabel>(new GUILabel("High Scores:"));
+	mHighscoresTitleLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
+	mHighscoresTitleLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_TOP);
+	shared_ptr<GUIComponent> highscoresTitle_label_component = static_pointer_cast<GUIComponent>(mHighscoresTitleLabel);
+	mGameDisplay->GetContainer()->AddComponent(highscoresTitle_label_component, GLVector2f(0.5f, 0.35f));
+
+	int maxToShow = min((int)mScores.size(), 5);
+	mDisplayedScores.clear();
+	for (int i = 0; i < maxToShow; i++)
+	{
+		std::string entry = std::to_string(i + 1) + ". " + mScores[i].name + ": " + std::to_string(mScores[i].score);
+		shared_ptr<GUILabel> scoreEntryLabel = shared_ptr<GUILabel>(new GUILabel(entry));
+		scoreEntryLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
+		scoreEntryLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_TOP);
+		shared_ptr<GUIComponent> scoreEntry_label_component = static_pointer_cast<GUIComponent>(scoreEntryLabel);
+		mGameDisplay->GetContainer()->AddComponent(scoreEntry_label_component, GLVector2f(0.5f, 0.3f - (i * 0.05f)));
+		mDisplayedScores.push_back(scoreEntryLabel);
+	}
 }
 
 void Asteroids::HideMenu()
@@ -331,6 +396,11 @@ void Asteroids::HideMenu()
 	mInstructionsTitleLabel->SetVisible(false);
 	mInstructionsLabel1->SetVisible(false);
 	mInstructionsLabel2->SetVisible(false);
+	mHighscoresTitleLabel->SetVisible(false);
+	for (int i = 0; i < mDisplayedScores.size(); i++)
+	{
+		mDisplayedScores[i]->SetVisible(false);
+	}
 }
 
 void Asteroids::OnScoreChanged(int score)
@@ -385,4 +455,31 @@ shared_ptr<GameObject> Asteroids::CreateExplosion()
 	explosion->SetSprite(explosion_sprite);
 	explosion->Reset();
 	return explosion;
+}
+
+void Asteroids::SaveScore(const std::string& name, int score)
+{
+	std::ofstream file("scores.txt", std::ios::app); // Open in append mode
+	if (file.is_open())
+	{
+		file << name << " " << score << "\n"; // Append name and score
+	}
+}
+
+void Asteroids::LoadScores()
+{
+	mScores.clear();
+	std::ifstream file("scores.txt");
+	if (!file.is_open()) return;
+
+	std::string name;
+	int score;
+	while (file >> name >> score)
+	{
+		// Add every name and score pair in text file to list of scores
+		mScores.push_back({ name, score });
+	}
+
+	// Sort in descending order
+	std::sort(mScores.begin(), mScores.end(), [](const ScoreEntry& a, const ScoreEntry& b) { return a.score > b.score; });
 }

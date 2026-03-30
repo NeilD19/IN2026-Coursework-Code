@@ -38,6 +38,8 @@ public:
 		}
 	}
 
+	int GetScore() const { return mScore; }
+
 private:
 	int mScore;
 
