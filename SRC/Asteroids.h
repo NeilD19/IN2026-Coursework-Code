@@ -53,6 +53,9 @@ public:
 	void LoadScores();
 	void SaveScore(const std::string& name, int score);
 
+	// Powerups implementation
+	void SpawnPowerUp();
+
 private:
 	shared_ptr<Spaceship> mSpaceship;
 	shared_ptr<GUILabel> mScoreLabel;
@@ -87,6 +90,7 @@ private:
 	const static uint SHOW_GAME_OVER = 0;
 	const static uint START_NEXT_LEVEL = 1;
 	const static uint CREATE_NEW_PLAYER = 2;
+	const static uint SPAWN_POWER_UP = 3;
 
 	ScoreKeeper mScoreKeeper;
 	Player mPlayer;

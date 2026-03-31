@@ -102,5 +102,11 @@ bool Spaceship::CollisionTest(shared_ptr<GameObject> o)
 
 void Spaceship::OnCollision(const GameObjectList &objects)
 {
+	// Prevent spaceship exploding when collecting power up
+	for (auto& o : objects)
+	{
+		if (o->GetType() == GameObjectType("ExtraLife")) return;
+	}
+
 	mWorld->FlagForRemoval(GetThisPtr());
 }

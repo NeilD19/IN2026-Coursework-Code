@@ -11,6 +11,8 @@
 #include "BoundingSphere.h"
 #include "GUILabel.h"
 #include "Explosion.h"
+#include "PowerUp.h"
+#include "ExtraLife.h"
 
 // PUBLIC INSTANCE CONSTRUCTORS ///////////////////////////////////////////////
 
@@ -219,6 +221,17 @@ void Asteroids::OnObjectRemoved(GameWorld* world, shared_ptr<GameObject> object)
 		{ 
 			SetTimer(500, START_NEXT_LEVEL); 
 		}
+		SpawnPowerUp();
+	}
+
+	// Increment player lives when extra life power up is collected
+	if (object->GetType() == GameObjectType("ExtraLife"))
+	{
+		mPlayer.IncrementLives();
+		std::ostringstream msg_stream;
+		msg_stream << "Lives: " << mPlayer.GetLives();
+		std::string lives_msg = msg_stream.str();
+		mLivesLabel->SetText(lives_msg);
 	}
 }
 
@@ -261,7 +274,6 @@ void Asteroids::OnTimer(int value)
 		shared_ptr<GUIComponent> nameInput_label_component = static_pointer_cast<GUIComponent>(mNameInputLabel);
 		mGameDisplay->GetContainer()->AddComponent(nameInput_label_component, GLVector2f(0.51f, 0.4f));
 	}
-
 }
 
 // PROTECTED INSTANCE METHODS /////////////////////////////////////////////////
@@ -482,4 +494,15 @@ void Asteroids::LoadScores()
 
 	// Sort in descending order
 	std::sort(mScores.begin(), mScores.end(), [](const ScoreEntry& a, const ScoreEntry& b) { return a.score > b.score; });
+}
+
+void Asteroids::SpawnPowerUp()
+{
+	if (rand() % 5 != 0) return; // 20% chance to spawn power up when asteroid destroyed
+
+	shared_ptr<PowerUp> powerUp = make_shared<ExtraLife>();
+	powerUp->SetBoundingShape(make_shared<BoundingSphere>(powerUp->GetThisPtr(), 3.0f));
+	shared_ptr<Shape> powerUp_shape = make_shared<Shape>("extraLife.shape");
+	powerUp->SetShape(powerUp_shape);
+	mGameWorld->AddObject(powerUp);
 }

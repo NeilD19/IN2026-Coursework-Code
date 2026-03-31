@@ -29,5 +29,11 @@ bool Asteroid::CollisionTest(shared_ptr<GameObject> o)
 
 void Asteroid::OnCollision(const GameObjectList& objects)
 {
+	// Prevent asteroids from picking up extra lives
+	for (auto& o : objects)
+	{
+		if (o->GetType() == GameObjectType("ExtraLife")) return;
+	}
+
 	mWorld->FlagForRemoval(GetThisPtr());
 }

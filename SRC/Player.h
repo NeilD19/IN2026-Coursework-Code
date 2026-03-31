@@ -40,6 +40,9 @@ public:
 		}
 	}
 
+	int GetLives() const { return mLives; }
+	void IncrementLives() { mLives++; }
+
 private:
 	int mLives;
 
