@@ -13,6 +13,7 @@
 #include "Explosion.h"
 #include "PowerUp.h"
 #include "ExtraLife.h"
+#include "Invulnerability.h"
 
 // PUBLIC INSTANCE CONSTRUCTORS ///////////////////////////////////////////////
 
@@ -233,6 +234,12 @@ void Asteroids::OnObjectRemoved(GameWorld* world, shared_ptr<GameObject> object)
 		std::string lives_msg = msg_stream.str();
 		mLivesLabel->SetText(lives_msg);
 	}
+
+	if (object->GetType() == GameObjectType("Invulnerability"))
+	{
+		mSpaceship->SetInvulnerability(true);
+		SetTimer(10000, INVULNERABLE);
+	}
 }
 
 // PUBLIC INSTANCE METHODS IMPLEMENTING ITimerListener ////////////////////////
@@ -273,6 +280,11 @@ void Asteroids::OnTimer(int value)
 		mNameInputLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_MIDDLE);
 		shared_ptr<GUIComponent> nameInput_label_component = static_pointer_cast<GUIComponent>(mNameInputLabel);
 		mGameDisplay->GetContainer()->AddComponent(nameInput_label_component, GLVector2f(0.51f, 0.4f));
+	}
+
+	if (value == INVULNERABLE)
+	{
+		mSpaceship->SetInvulnerability(false);
 	}
 }
 
@@ -500,9 +512,17 @@ void Asteroids::SpawnPowerUp()
 {
 	if (rand() % 5 != 0) return; // 20% chance to spawn power up when asteroid destroyed
 
-	shared_ptr<PowerUp> powerUp = make_shared<ExtraLife>();
+	shared_ptr<PowerUp> powerUp;
+	if (rand() % 2 == 0)
+	{
+		powerUp = make_shared<ExtraLife>();
+	}
+	else
+	{
+		powerUp = make_shared<Invulnerability>();
+	}
+
 	powerUp->SetBoundingShape(make_shared<BoundingSphere>(powerUp->GetThisPtr(), 3.0f));
-	shared_ptr<Shape> powerUp_shape = make_shared<Shape>("extraLife.shape");
-	powerUp->SetShape(powerUp_shape);
+	powerUp->SetShape(powerUp->GetShape());
 	mGameWorld->AddObject(powerUp);
 }

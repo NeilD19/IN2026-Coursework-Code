@@ -10,7 +10,7 @@ using namespace std;
 
 /**  Default constructor. */
 Spaceship::Spaceship()
-	: GameObject("Spaceship"), mThrust(0)
+	: GameObject("Spaceship"), mThrust(0), mInvulnerable(false)
 {
 }
 
@@ -94,6 +94,7 @@ void Spaceship::Shoot(void)
 
 bool Spaceship::CollisionTest(shared_ptr<GameObject> o)
 {
+	if (o->GetType() == GameObjectType("Asteroid") && mInvulnerable) return false;
 	if (o->GetType() != GameObjectType("Asteroid")) return false;
 	if (mBoundingShape.get() == NULL) return false;
 	if (o->GetBoundingShape().get() == NULL) return false;
@@ -102,10 +103,13 @@ bool Spaceship::CollisionTest(shared_ptr<GameObject> o)
 
 void Spaceship::OnCollision(const GameObjectList &objects)
 {
+	// Prevent spaceship from exploding while invulnerable
+	if (mInvulnerable) return;
 	// Prevent spaceship exploding when collecting power up
 	for (auto& o : objects)
 	{
 		if (o->GetType() == GameObjectType("ExtraLife")) return;
+		if (o->GetType() == GameObjectType("Invulnerability")) return;
 	}
 
 	mWorld->FlagForRemoval(GetThisPtr());

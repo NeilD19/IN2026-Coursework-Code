@@ -90,7 +90,7 @@ private:
 	const static uint SHOW_GAME_OVER = 0;
 	const static uint START_NEXT_LEVEL = 1;
 	const static uint CREATE_NEW_PLAYER = 2;
-	const static uint SPAWN_POWER_UP = 3;
+	const static uint INVULNERABLE = 3;
 
 	ScoreKeeper mScoreKeeper;
 	Player mPlayer;

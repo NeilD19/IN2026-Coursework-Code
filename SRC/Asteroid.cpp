@@ -33,6 +33,7 @@ void Asteroid::OnCollision(const GameObjectList& objects)
 	for (auto& o : objects)
 	{
 		if (o->GetType() == GameObjectType("ExtraLife")) return;
+		if (o->GetType() == GameObjectType("Invulnerability")) return;
 	}
 
 	mWorld->FlagForRemoval(GetThisPtr());
