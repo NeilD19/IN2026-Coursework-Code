@@ -10,7 +10,7 @@ using namespace std;
 
 /**  Default constructor. */
 Spaceship::Spaceship()
-	: GameObject("Spaceship"), mThrust(0), mInvulnerable(false)
+	: GameObject("Spaceship"), mThrust(0), mInvulnerable(false), mIsBoosting(false)
 {
 }
 
@@ -36,6 +36,18 @@ Spaceship::~Spaceship(void)
 /** Update this spaceship. */
 void Spaceship::Update(int t)
 {
+	float seconds = t / 1000.0f;
+	if (mIsBoosting && mFuel > 0.0f)
+	{
+		mFuel -= mBoostDrainRate * seconds;
+		mFuel = max(mFuel, 0.0f);
+	}
+	mIsBoosting = false;
+
+
+	mVelocity.x *= 0.99f;
+	mVelocity.y *= 0.99f;
+
 	// Call parent update function
 	GameObject::Update(t);
 }
@@ -60,6 +72,25 @@ void Spaceship::Thrust(float t)
 	// Increase acceleration in the direction of ship
 	mAcceleration.x = mThrust*cos(DEG2RAD*mAngle);
 	mAcceleration.y = mThrust*sin(DEG2RAD*mAngle);
+}
+
+void Spaceship::Brake(float strength)
+{
+	float speed = mVelocity.length();
+	if (speed < 0.01f) return;
+
+	GLVector2f dir = mVelocity.normalize();
+	strength = min(strength, speed);
+	mAcceleration.x = -dir.x * strength;
+	mAcceleration.y = -dir.y * strength;
+}
+
+void Spaceship::Boost(float t)
+{
+	if (mFuel <= 0.0f) return;
+	mIsBoosting = true;
+	mAcceleration.x = t * 2.5f * cos(DEG2RAD * mAngle);
+	mAcceleration.y = t * 2.5f * sin(DEG2RAD * mAngle);
 }
 
 /** Set the rotation. */

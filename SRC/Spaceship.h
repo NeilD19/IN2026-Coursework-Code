@@ -19,6 +19,8 @@ public:
 	virtual void Thrust(float t);
 	virtual void Rotate(float r);
 	virtual void Shoot(void);
+	void Brake(float strength);
+	void Boost(float t);
 
 	void SetSpaceshipShape(shared_ptr<Shape> spaceship_shape) { mSpaceshipShape = spaceship_shape; }
 	void SetThrusterShape(shared_ptr<Shape> thruster_shape) { mThrusterShape = thruster_shape; }
@@ -28,9 +30,13 @@ public:
 	void OnCollision(const GameObjectList &objects);
 
 	void SetInvulnerability(bool value) { mInvulnerable = value; }
+	float GetFuel() const { return mFuel; }
 private:
 	float mThrust;
 	bool mInvulnerable;
+	float mFuel = 100.0f;
+	float mBoostDrainRate = 25.0f;
+	bool mIsBoosting;
 
 	shared_ptr<Shape> mSpaceshipShape;
 	shared_ptr<Shape> mThrusterShape;

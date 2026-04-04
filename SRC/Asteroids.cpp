@@ -134,6 +134,10 @@ void Asteroids::OnKeyPressed(uchar key, int x, int y)
 			{
 			case ' ':
 				mSpaceship->Shoot(); break;
+			case 'z':
+				mSpaceship->Boost(10); 
+				UpdateFuelText();
+				break;
 			default: break;
 			}
 		}
@@ -159,6 +163,8 @@ void Asteroids::OnSpecialKeyPressed(int key, int x, int y)
 		{
 			// If up arrow key is pressed start applying forward thrust
 		case GLUT_KEY_UP: mSpaceship->Thrust(10); break;
+			// If down arrow key is pressed, brake
+		case GLUT_KEY_DOWN: mSpaceship->Brake(10); break;
 			// If left arrow key is pressed start rotating anti-clockwise
 		case GLUT_KEY_LEFT: mSpaceship->Rotate(90); break;
 			// If right arrow key is pressed start rotating clockwise
@@ -249,6 +255,9 @@ void Asteroids::OnTimer(int value)
 	if (value == CREATE_NEW_PLAYER)
 	{
 		mSpaceship->Reset();
+		// Temporary invulnerability after respawning
+		mSpaceship->SetInvulnerability(true);
+		SetTimer(1000, INVULNERABLE);
 		mGameWorld->AddObject(mSpaceship);
 	}
 
@@ -363,6 +372,13 @@ void Asteroids::CreateGUI()
 		= static_pointer_cast<GUIComponent>(mGameOverLabel);
 	mGameDisplay->GetContainer()->AddComponent(game_over_component, GLVector2f(0.5f, 0.5f));
 
+	// Boost label
+	mBoostLabel = make_shared<GUILabel>("Boost: 100%");
+	mBoostLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_RIGHT);
+	mBoostLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_TOP);
+	mBoostLabel->SetVisible(true);
+	shared_ptr<GUIComponent> boost_component = static_pointer_cast<GUIComponent>(mBoostLabel);
+	mGameDisplay->GetContainer()->AddComponent(boost_component, GLVector2f(1.0f, 1.0f));
 }
 
 void Asteroids::CreateMenu()
@@ -528,4 +544,12 @@ void Asteroids::SpawnPowerUp()
 	powerUp->SetBoundingShape(make_shared<BoundingSphere>(powerUp->GetThisPtr(), 3.0f));
 	powerUp->SetShape(powerUp->GetShape());
 	mGameWorld->AddObject(powerUp);
+}
+
+void Asteroids::UpdateFuelText()
+{
+	int fuelPercent = (int)mSpaceship->GetFuel();
+	std::ostringstream fuelStream;
+	fuelStream << "Boost: " << fuelPercent << "%";
+	mBoostLabel->SetText(fuelStream.str());
 }

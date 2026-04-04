@@ -56,10 +56,14 @@ public:
 	// Powerups implementation
 	void SpawnPowerUp();
 
+	// Boost implementation
+	void UpdateFuelText();
+
 private:
 	shared_ptr<Spaceship> mSpaceship;
 	shared_ptr<GUILabel> mScoreLabel;
 	shared_ptr<GUILabel> mLivesLabel;
+	shared_ptr<GUILabel> mBoostLabel;
 	shared_ptr<GUILabel> mGameOverLabel;
 
 	shared_ptr<GUILabel> mStartLabel;
