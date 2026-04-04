@@ -304,6 +304,9 @@ shared_ptr<GameObject> Asteroids::CreateSpaceship()
 	mSpaceship->SetScale(0.1f);
 	// Reset spaceship back to centre of the world
 	mSpaceship->Reset();
+	// Temporary invulnerability when spaceship spawns
+	mSpaceship->SetInvulnerability(true);
+	SetTimer(1000, INVULNERABLE);
 	// Return the spaceship so it can be added to the world
 	return mSpaceship;
 
