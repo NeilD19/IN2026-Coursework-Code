@@ -71,6 +71,7 @@ private:
 	shared_ptr<GUILabel> mInstructionsTitleLabel;
 	shared_ptr<GUILabel> mInstructionsLabel1;
 	shared_ptr<GUILabel> mInstructionsLabel2;
+	shared_ptr<GUILabel> mInstructionsLabel3;
 	shared_ptr<GUILabel> mHighscoresTitleLabel;
 	std::vector<shared_ptr<GUILabel>> mDisplayedScores;
 

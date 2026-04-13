@@ -14,6 +14,7 @@
 #include "PowerUp.h"
 #include "ExtraLife.h"
 #include "Invulnerability.h"
+#include "Fuel.h"
 
 // PUBLIC INSTANCE CONSTRUCTORS ///////////////////////////////////////////////
 
@@ -244,6 +245,12 @@ void Asteroids::OnObjectRemoved(GameWorld* world, shared_ptr<GameObject> object)
 		mSpaceship->SetInvulnerability(true);
 		SetTimer(10000, INVULNERABLE);
 	}
+
+	if (object->GetType() == GameObjectType("Fuel"))
+	{
+		mSpaceship->Refuel();
+		UpdateFuelText();
+	}
 }
 
 // PUBLIC INSTANCE METHODS IMPLEMENTING ITimerListener ////////////////////////
@@ -408,6 +415,10 @@ void Asteroids::CreateMenu()
 	mInstructionsLabel2->SetVerticalAlignment(GUIComponent::GUI_VALIGN_TOP);
 	shared_ptr<GUIComponent> instructions_label2_component = static_pointer_cast<GUIComponent>(mInstructionsLabel2);
 	mGameDisplay->GetContainer()->AddComponent(instructions_label2_component, GLVector2f(0.f, 0.9f));
+	mInstructionsLabel3 = shared_ptr<GUILabel>(new GUILabel("3.Boost with Z"));
+	mInstructionsLabel3->SetVerticalAlignment(GUIComponent::GUI_VALIGN_TOP);
+	shared_ptr<GUIComponent> instructions_label3_component = static_pointer_cast<GUIComponent>(mInstructionsLabel3);
+	mGameDisplay->GetContainer()->AddComponent(instructions_label3_component, GLVector2f(0.f, 0.85f));
 
 	LoadScores();
 	mHighscoresTitleLabel = shared_ptr<GUILabel>(new GUILabel("High Scores:"));
@@ -530,16 +541,19 @@ void Asteroids::SpawnPowerUp()
 	if (rand() % 5 != 0) return; // 20% chance to spawn power up when asteroid destroyed
 
 	shared_ptr<PowerUp> powerUp;
-	if (rand() % 2 == 0)
+	int roll = rand() % 3;
+	switch (roll)
 	{
-		powerUp = make_shared<ExtraLife>();
-	}
-	else
-	{
-		powerUp = make_shared<Invulnerability>();
+	case 0:
+		powerUp = make_shared<ExtraLife>(); break;
+	case 1:
+		powerUp = make_shared<Invulnerability>(); break;
+	case 2:
+		powerUp = make_shared<Fuel>(); break;
+	default: break;
 	}
 
-	powerUp->SetBoundingShape(make_shared<BoundingSphere>(powerUp->GetThisPtr(), 3.0f));
+	powerUp->SetBoundingShape(make_shared<BoundingSphere>(powerUp->GetThisPtr(), 1.0f));
 	powerUp->SetShape(powerUp->GetShape());
 	mGameWorld->AddObject(powerUp);
 }

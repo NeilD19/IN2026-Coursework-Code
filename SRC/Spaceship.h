@@ -30,6 +30,7 @@ public:
 
 	void SetInvulnerability(bool value) { mInvulnerable = value; }
 	float GetFuel() const { return mFuel; }
+	void Refuel() { mFuel = 100.f; }
 private:
 	float mThrust;
 	bool mInvulnerable;
