@@ -74,17 +74,6 @@ void Spaceship::Thrust(float t)
 	mAcceleration.y = mThrust*sin(DEG2RAD*mAngle);
 }
 
-void Spaceship::Brake(float strength)
-{
-	float speed = mVelocity.length();
-	if (speed < 0.01f) return;
-
-	GLVector2f dir = mVelocity.normalize();
-	strength = min(strength, speed);
-	mAcceleration.x = -dir.x * strength;
-	mAcceleration.y = -dir.y * strength;
-}
-
 void Spaceship::Boost(float t)
 {
 	if (mFuel <= 0.0f) return;
