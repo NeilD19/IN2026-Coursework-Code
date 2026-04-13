@@ -25,7 +25,6 @@ Asteroids::Asteroids(int argc, char *argv[])
 	mLevel = 0;
 	mAsteroidCount = 0;
 	mState = MENU;
-	mDifficulty = NORMAL;
 }
 
 /** Destructor. */
@@ -176,13 +175,22 @@ void Asteroids::OnSpecialKeyPressed(int key, int x, int y)
 	{
 		switch (key)
 		{
-		case GLUT_KEY_LEFT:
-			mDifficulty = NORMAL;
-			SetDifficulty("NORMAL");
+		// Up and Down to select power ups
+		case GLUT_KEY_UP:
+			mDifficultyMenuSelection = (mDifficultyMenuSelection - 1 + 3) % 3; // Wrap around
+			UpdateDifficultyLabels();
 			break;
+		case GLUT_KEY_DOWN:
+			mDifficultyMenuSelection = (mDifficultyMenuSelection + 1) % 3; // Wrap around
+			UpdateDifficultyLabels();
+			break;
+		// Left and right to toggle selected power up on or off
+		case GLUT_KEY_LEFT:
 		case GLUT_KEY_RIGHT:
-			mDifficulty = HARD;
-			SetDifficulty("HARD");
+			if (mDifficultyMenuSelection == 0) mExtraLifeEnabled = !mExtraLifeEnabled;
+			if (mDifficultyMenuSelection == 1) mInvulnerabilityEnabled = !mInvulnerabilityEnabled;
+			if (mDifficultyMenuSelection == 2) mFuelEnabled = !mFuelEnabled;
+			UpdateDifficultyLabels();
 			break;
 		default: break;
 		}
@@ -396,11 +404,27 @@ void Asteroids::CreateMenu()
 	mGameDisplay->GetContainer()->AddComponent(start_label_component, GLVector2f(0.5f, 0.4f));
 
 	// Create difficulty label
-	mDifficultyLabel = shared_ptr<GUILabel>(new GUILabel("Difficulty: NORMAL"));
+	mDifficultyLabel = shared_ptr<GUILabel>(new GUILabel("Difficulty - Enable or Disable Power Ups:"));
 	mDifficultyLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
 	mDifficultyLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_TOP);
 	shared_ptr<GUIComponent> difficulty_label_component = static_pointer_cast<GUIComponent>(mDifficultyLabel);
-	mGameDisplay->GetContainer()->AddComponent(difficulty_label_component, GLVector2f(0.5f, 0.6f));
+	mGameDisplay->GetContainer()->AddComponent(difficulty_label_component, GLVector2f(0.5f, 0.7f));
+	// Create power-up toggle labels
+	mExtraLifeLabel = shared_ptr<GUILabel>(new GUILabel("> Extra Life: On"));
+	mExtraLifeLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
+	mExtraLifeLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_TOP);
+	shared_ptr<GUIComponent> extraLife_toggle_component = static_pointer_cast<GUIComponent>(mExtraLifeLabel);
+	mGameDisplay->GetContainer()->AddComponent(extraLife_toggle_component, GLVector2f(0.5f, 0.65f));
+	mInvulnerabilityLabel = shared_ptr<GUILabel>(new GUILabel("Invulnerability: On"));
+	mInvulnerabilityLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
+	mInvulnerabilityLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_TOP);
+	shared_ptr<GUIComponent> invulnerability_toggle_component = static_pointer_cast<GUIComponent>(mInvulnerabilityLabel);
+	mGameDisplay->GetContainer()->AddComponent(invulnerability_toggle_component, GLVector2f(0.5f, 0.6f));
+	mFuelLabel = shared_ptr<GUILabel>(new GUILabel("Fuel: On"));
+	mFuelLabel->SetHorizontalAlignment(GUIComponent::GUI_HALIGN_CENTER);
+	mFuelLabel->SetVerticalAlignment(GUIComponent::GUI_VALIGN_TOP);
+	shared_ptr<GUIComponent> fuel_toggle_component = static_pointer_cast<GUIComponent>(mFuelLabel);
+	mGameDisplay->GetContainer()->AddComponent(fuel_toggle_component, GLVector2f(0.5f, 0.55f));
 
 	// Create instructions labels
 	mInstructionsTitleLabel = shared_ptr<GUILabel>(new GUILabel("Instructions:"));
@@ -445,9 +469,13 @@ void Asteroids::HideMenu()
 {
 	mStartLabel->SetVisible(false);
 	mDifficultyLabel->SetVisible(false);
+	mExtraLifeLabel->SetVisible(false);
+	mInvulnerabilityLabel->SetVisible(false);
+	mFuelLabel->SetVisible(false);
 	mInstructionsTitleLabel->SetVisible(false);
 	mInstructionsLabel1->SetVisible(false);
 	mInstructionsLabel2->SetVisible(false);
+	mInstructionsLabel3->SetVisible(false);
 	mHighscoresTitleLabel->SetVisible(false);
 	for (int i = 0; i < mDisplayedScores.size(); i++)
 	{
@@ -487,14 +515,6 @@ void Asteroids::OnPlayerKilled(int lives_left)
 	{
 		SetTimer(500, SHOW_GAME_OVER);
 	}
-}
-
-void Asteroids::SetDifficulty(std::string difficulty)
-{
-	std::ostringstream msg_stream;
-	msg_stream << "Difficulty: " << difficulty;
-	std::string difficultyText = msg_stream.str();
-	mDifficultyLabel->SetText(difficultyText);
 }
 
 shared_ptr<GameObject> Asteroids::CreateExplosion()
@@ -542,15 +562,22 @@ void Asteroids::SpawnPowerUp()
 
 	shared_ptr<PowerUp> powerUp;
 	int roll = rand() % 3;
-	switch (roll)
+	if (roll == 0 && mExtraLifeEnabled)
 	{
-	case 0:
-		powerUp = make_shared<ExtraLife>(); break;
-	case 1:
-		powerUp = make_shared<Invulnerability>(); break;
-	case 2:
-		powerUp = make_shared<Fuel>(); break;
-	default: break;
+		powerUp = make_shared<ExtraLife>();
+	}
+	else if (roll == 1 && mInvulnerabilityEnabled)
+	{
+		powerUp = make_shared<Invulnerability>();
+	}
+	else if (roll == 2 && mFuelEnabled)
+	{
+		powerUp = make_shared<Fuel>();
+	}
+	else
+	{
+		// Prevent power up from being created if none enabled
+		return;
 	}
 
 	powerUp->SetBoundingShape(make_shared<BoundingSphere>(powerUp->GetThisPtr(), 1.0f));
@@ -564,4 +591,15 @@ void Asteroids::UpdateFuelText()
 	std::ostringstream fuelStream;
 	fuelStream << "Boost: " << fuelPercent << "%";
 	mBoostLabel->SetText(fuelStream.str());
+}
+
+void Asteroids::UpdateDifficultyLabels()
+{
+	// Formats labels with a ">" if currently selected and shows if On or Off e.g "> Extra Life: On"
+	std::string extraLifeText = std::string(mDifficultyMenuSelection == 0 ? "> " : "") + "Extra Life: " + (mExtraLifeEnabled ? "On" : "Off");
+	mExtraLifeLabel->SetText(extraLifeText);
+	std::string invulnerabilityText = std::string(mDifficultyMenuSelection == 1 ? "> " : "") + "Invulnerability: " + (mInvulnerabilityEnabled ? "On" : "Off");
+	mInvulnerabilityLabel->SetText(invulnerabilityText);
+	std::string fuelText = std::string(mDifficultyMenuSelection == 2 ? "> " : "") + "Fuel: " + (mFuelEnabled ? "On" : "Off");
+	mFuelLabel->SetText(fuelText);
 }

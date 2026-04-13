@@ -58,7 +58,6 @@ public:
 
 	// Boost implementation
 	void UpdateFuelText();
-
 private:
 	shared_ptr<Spaceship> mSpaceship;
 	shared_ptr<GUILabel> mScoreLabel;
@@ -68,6 +67,9 @@ private:
 
 	shared_ptr<GUILabel> mStartLabel;
 	shared_ptr<GUILabel> mDifficultyLabel;
+	shared_ptr<GUILabel> mExtraLifeLabel;
+	shared_ptr<GUILabel> mInvulnerabilityLabel;
+	shared_ptr<GUILabel> mFuelLabel;
 	shared_ptr<GUILabel> mInstructionsTitleLabel;
 	shared_ptr<GUILabel> mInstructionsLabel1;
 	shared_ptr<GUILabel> mInstructionsLabel2;
@@ -83,8 +85,8 @@ private:
 	void CreateMenu();
 	void HideMenu();
 
-	// Difficulty selector
-	void SetDifficulty(std::string difficulty);
+	// Difficulty implementation
+	void UpdateDifficultyLabels();
 
 	void ResetSpaceship();
 	shared_ptr<GameObject> CreateSpaceship();
@@ -103,8 +105,10 @@ private:
 	enum GameState { MENU, PLAYING };
 	GameState mState;
 
-	enum Difficulty { NORMAL, HARD };
-	Difficulty mDifficulty;
+	bool mExtraLifeEnabled = true;
+	bool mInvulnerabilityEnabled = true;
+	bool mFuelEnabled = true;
+	int mDifficultyMenuSelection = 0;
 
 	struct ScoreEntry
 	{
