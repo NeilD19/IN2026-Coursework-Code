@@ -24,6 +24,7 @@ Asteroids::Asteroids(int argc, char *argv[])
 {
 	mLevel = 0;
 	mAsteroidCount = 0;
+	mPowerupCount = 0;
 	mState = MENU;
 }
 
@@ -62,6 +63,9 @@ void Asteroids::Start()
 	Animation *explosion_anim = AnimationManager::GetInstance().CreateAnimationFromFile("explosion", 64, 1024, 64, 64, "explosion_fs.png");
 	Animation *asteroid1_anim = AnimationManager::GetInstance().CreateAnimationFromFile("asteroid1", 128, 8192, 128, 128, "asteroid1_fs.png");
 	Animation *spaceship_anim = AnimationManager::GetInstance().CreateAnimationFromFile("spaceship", 128, 128, 128, 128, "spaceship_fs.png");
+	Animation *extralife_anim = AnimationManager::GetInstance().CreateAnimationFromFile("extralife", 256, 256, 256, 256, "extralife.png");
+	Animation *invulnerability_anim = AnimationManager::GetInstance().CreateAnimationFromFile("invulnerability", 256, 256, 256, 256, "invulnerability.png");
+	Animation *fuel_anim = AnimationManager::GetInstance().CreateAnimationFromFile("fuel", 256, 256, 256, 256, "fuel.png");
 
 	// Create some asteroids and add them to the world
 	CreateAsteroids(10);
@@ -241,6 +245,7 @@ void Asteroids::OnObjectRemoved(GameWorld* world, shared_ptr<GameObject> object)
 	// Increment player lives when extra life power up is collected
 	if (object->GetType() == GameObjectType("ExtraLife"))
 	{
+		mPowerupCount--;
 		mPlayer.IncrementLives();
 		std::ostringstream msg_stream;
 		msg_stream << "Lives: " << mPlayer.GetLives();
@@ -250,12 +255,14 @@ void Asteroids::OnObjectRemoved(GameWorld* world, shared_ptr<GameObject> object)
 
 	if (object->GetType() == GameObjectType("Invulnerability"))
 	{
+		mPowerupCount--;
 		mSpaceship->SetInvulnerability(true);
 		SetTimer(10000, INVULNERABLE);
 	}
 
 	if (object->GetType() == GameObjectType("Fuel"))
 	{
+		mPowerupCount--;
 		mSpaceship->Refuel();
 		UpdateFuelText();
 	}
@@ -558,21 +565,27 @@ void Asteroids::LoadScores()
 
 void Asteroids::SpawnPowerUp()
 {
-	if (rand() % 5 != 0) return; // 20% chance to spawn power up when asteroid destroyed
+	// 20% chance to spawn power up when asteroid destroyed
+	// Only 3 power ups can exist at a time
+	if (rand() % 5 != 0 || mPowerupCount == 3) return;
 
 	shared_ptr<PowerUp> powerUp;
+	std::string animation;
 	int roll = rand() % 3;
 	if (roll == 0 && mExtraLifeEnabled)
 	{
 		powerUp = make_shared<ExtraLife>();
+		animation = "extralife";
 	}
 	else if (roll == 1 && mInvulnerabilityEnabled)
 	{
 		powerUp = make_shared<Invulnerability>();
+		animation = "invulnerability";
 	}
 	else if (roll == 2 && mFuelEnabled)
 	{
 		powerUp = make_shared<Fuel>();
+		animation = "fuel";
 	}
 	else
 	{
@@ -580,9 +593,14 @@ void Asteroids::SpawnPowerUp()
 		return;
 	}
 
-	powerUp->SetBoundingShape(make_shared<BoundingSphere>(powerUp->GetThisPtr(), 1.0f));
-	powerUp->SetShape(powerUp->GetShape());
+	powerUp->SetBoundingShape(make_shared<BoundingSphere>(powerUp->GetThisPtr(), 1.25f));
+	//powerUp->SetShape(powerUp->GetShape());
+	Animation* anim_ptr = AnimationManager::GetInstance().GetAnimationByName(animation);
+	shared_ptr<Sprite> powerup_sprite = make_shared<Sprite>(anim_ptr->GetWidth(), anim_ptr->GetHeight(), anim_ptr);
+	powerUp->SetSprite(powerup_sprite);
+	powerUp->SetScale(0.025f);
 	mGameWorld->AddObject(powerUp);
+	mPowerupCount++;
 }
 
 void Asteroids::UpdateFuelText()

@@ -5,7 +5,7 @@
 PowerUp::PowerUp() : GameObject("PowerUp")
 {
 	mAngle = 0;
-	mRotation = 0;
+	mRotation = 30;
 	mPosition.x = rand() / 2;
 	mPosition.y = rand() / 2;
 	mPosition.z = 0.0;

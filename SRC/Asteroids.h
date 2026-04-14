@@ -80,6 +80,8 @@ private:
 	uint mLevel;
 	uint mAsteroidCount;
 
+	uint mPowerupCount;
+
 	void StartGame();
 
 	void CreateMenu();
