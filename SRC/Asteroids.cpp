@@ -253,6 +253,7 @@ void Asteroids::OnObjectRemoved(GameWorld* world, shared_ptr<GameObject> object)
 		mLivesLabel->SetText(lives_msg);
 	}
 
+	// 10 seconds of invulnerability
 	if (object->GetType() == GameObjectType("Invulnerability"))
 	{
 		mPowerupCount--;
@@ -260,6 +261,7 @@ void Asteroids::OnObjectRemoved(GameWorld* world, shared_ptr<GameObject> object)
 		SetTimer(10000, INVULNERABLE);
 	}
 
+	// Refuel
 	if (object->GetType() == GameObjectType("Fuel"))
 	{
 		mPowerupCount--;
@@ -286,6 +288,9 @@ void Asteroids::OnTimer(int value)
 		mLevel++;
 		int num_asteroids = 10 + 2 * mLevel;
 		CreateAsteroids(num_asteroids);
+		// Temporary invulnerability after starting next level
+		mSpaceship->SetInvulnerability(true);
+		SetTimer(1000, INVULNERABLE);
 	}
 
 	if (value == SHOW_GAME_OVER)
@@ -458,6 +463,7 @@ void Asteroids::CreateMenu()
 	shared_ptr<GUIComponent> highscoresTitle_label_component = static_pointer_cast<GUIComponent>(mHighscoresTitleLabel);
 	mGameDisplay->GetContainer()->AddComponent(highscoresTitle_label_component, GLVector2f(0.5f, 0.35f));
 
+	// Display only the top 5 scores
 	int maxToShow = min((int)mScores.size(), 5);
 	mDisplayedScores.clear();
 	for (int i = 0; i < maxToShow; i++)
@@ -474,6 +480,7 @@ void Asteroids::CreateMenu()
 
 void Asteroids::HideMenu()
 {
+	// Toggles all menu label visiblity off
 	mStartLabel->SetVisible(false);
 	mDifficultyLabel->SetVisible(false);
 	mExtraLifeLabel->SetVisible(false);
@@ -571,7 +578,7 @@ void Asteroids::SpawnPowerUp()
 
 	shared_ptr<PowerUp> powerUp;
 	std::string animation;
-	int roll = rand() % 3;
+	int roll = rand() % 3; // Equal spawn chance for each power up
 	if (roll == 0 && mExtraLifeEnabled)
 	{
 		powerUp = make_shared<ExtraLife>();

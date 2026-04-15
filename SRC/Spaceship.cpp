@@ -78,8 +78,8 @@ void Spaceship::Boost(float t)
 {
 	if (mFuel <= 0.0f) return;
 	mIsBoosting = true;
-	mAcceleration.x = t * 2.5f * cos(DEG2RAD * mAngle);
-	mAcceleration.y = t * 2.5f * sin(DEG2RAD * mAngle);
+	mAcceleration.x = t * 3 * cos(DEG2RAD * mAngle);
+	mAcceleration.y = t * 3 * sin(DEG2RAD * mAngle);
 }
 
 /** Set the rotation. */
