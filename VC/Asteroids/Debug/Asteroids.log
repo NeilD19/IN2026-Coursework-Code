@@ -1,7 +1,14 @@
 ﻿cl : command line  warning D9035: option 'Gm' has been deprecated and will be removed in a future release
+  Spaceship.cpp
+  PowerUp.cpp
+  main.cpp
+  Invulnerability.cpp
+  Fuel.cpp
+  ExtraLife.cpp
+  Explosion.cpp
+  Bullet.cpp
   Asteroids.cpp
 D:\neilg\Uni\Games Tech\IN2026 Coursework Code\src\Asteroids.cpp(505,20): warning C4018: '<': signed/unsigned mismatch
-  PowerUp.cpp
   Asteroid.cpp
   Generating Code...
 Asteroid.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/SAFESEH' specification
@@ -12,13 +19,10 @@ Asteroid.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/SAFESEH' sp
   ..\..\assets\bullet.shape
   ..\..\assets\explosion_fs.png
   ..\..\assets\extralife.png
-  ..\..\assets\extralife.shape
   ..\..\assets\fuel.png
-  ..\..\assets\fuel.shape
   ..\..\assets\invulnerability.png
-  ..\..\assets\invulnerability.shape
   ..\..\assets\scores.txt
   ..\..\assets\spaceship.shape
   ..\..\assets\spaceship_fs.png
   ..\..\assets\thruster.shape
-         15 file(s) copied.
+         12 file(s) copied.

@@ -612,7 +612,6 @@ void Asteroids::SpawnPowerUp()
 	}
 
 	powerUp->SetBoundingShape(make_shared<BoundingSphere>(powerUp->GetThisPtr(), 1.25f));
-	//powerUp->SetShape(powerUp->GetShape());
 	Animation* anim_ptr = AnimationManager::GetInstance().GetAnimationByName(animation);
 	shared_ptr<Sprite> powerup_sprite = make_shared<Sprite>(anim_ptr->GetWidth(), anim_ptr->GetHeight(), anim_ptr);
 	powerUp->SetSprite(powerup_sprite);
