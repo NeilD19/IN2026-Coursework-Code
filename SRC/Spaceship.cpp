@@ -48,6 +48,15 @@ void Spaceship::Update(int t)
 	mVelocity.x *= 0.99f;
 	mVelocity.y *= 0.99f;
 
+	if (mAura)
+	{
+		// Aura follows ship
+		mAura->SetPosition(mPosition);
+		mAura->SetAngle(mAngle);
+		// Show when invulnerability is active, hide if otherwise
+		mAura->SetScale(mInvulnerable ? 0.175f : 0);
+	}
+
 	// Call parent update function
 	GameObject::Update(t);
 }
@@ -134,4 +143,5 @@ void Spaceship::OnCollision(const GameObjectList &objects)
 	}
 
 	mWorld->FlagForRemoval(GetThisPtr());
+	mWorld->FlagForRemoval(mAura->GetThisPtr());
 }

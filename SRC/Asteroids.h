@@ -60,6 +60,7 @@ public:
 	void UpdateFuelText();
 private:
 	shared_ptr<Spaceship> mSpaceship;
+	shared_ptr<GameObject> mAura;
 	shared_ptr<GUILabel> mScoreLabel;
 	shared_ptr<GUILabel> mLivesLabel;
 	shared_ptr<GUILabel> mBoostLabel;

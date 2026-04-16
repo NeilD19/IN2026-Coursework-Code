@@ -31,6 +31,8 @@ public:
 	void SetInvulnerability(bool value) { mInvulnerable = value; }
 	float GetFuel() const { return mFuel; }
 	void Refuel() { mFuel = 100.f; }
+
+	void SetAura(shared_ptr<GameObject> aura) { mAura = aura; }
 private:
 	float mThrust;
 	bool mInvulnerable;
@@ -41,6 +43,8 @@ private:
 	shared_ptr<Shape> mSpaceshipShape;
 	shared_ptr<Shape> mThrusterShape;
 	shared_ptr<Shape> mBulletShape;
+
+	shared_ptr<GameObject> mAura;
 };
 
 #endif

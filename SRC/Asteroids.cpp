@@ -66,6 +66,7 @@ void Asteroids::Start()
 	Animation *extralife_anim = AnimationManager::GetInstance().CreateAnimationFromFile("extralife", 256, 256, 256, 256, "extralife.png");
 	Animation *invulnerability_anim = AnimationManager::GetInstance().CreateAnimationFromFile("invulnerability", 256, 256, 256, 256, "invulnerability.png");
 	Animation *fuel_anim = AnimationManager::GetInstance().CreateAnimationFromFile("fuel", 256, 256, 256, 256, "fuel.png");
+	Animation *aura_anim = AnimationManager::GetInstance().CreateAnimationFromFile("aura", 64, 512, 64, 64, "aura.png");
 
 	// Create some asteroids and add them to the world
 	CreateAsteroids(10);
@@ -336,6 +337,16 @@ shared_ptr<GameObject> Asteroids::CreateSpaceship()
 		make_shared<Sprite>(anim_ptr->GetWidth(), anim_ptr->GetHeight(), anim_ptr);
 	mSpaceship->SetSprite(spaceship_sprite);
 	mSpaceship->SetScale(0.1f);
+
+	// Create invulnerability aura
+	mAura = make_shared<GameObject>("Aura");
+	Animation* aura_ptr = AnimationManager::GetInstance().GetAnimationByName("aura");
+	shared_ptr<Sprite> aura_sprite = make_shared<Sprite>(aura_ptr->GetWidth(), aura_ptr->GetHeight(), aura_ptr);
+	mAura->SetSprite(aura_sprite);
+	mAura->SetScale(0); // Hide aura initially
+	mGameWorld->AddObject(mAura);
+	mSpaceship->SetAura(mAura);
+
 	// Reset spaceship back to centre of the world
 	mSpaceship->Reset();
 	// Temporary invulnerability when spaceship spawns
