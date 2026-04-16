@@ -1,6 +1,16 @@
 ﻿cl : command line  warning D9035: option 'Gm' has been deprecated and will be removed in a future release
+  Spaceship.cpp
+  PowerUp.cpp
+  main.cpp
+  Invulnerability.cpp
+  Fuel.cpp
+  ExtraLife.cpp
+  Explosion.cpp
+  Bullet.cpp
   Asteroids.cpp
 D:\neilg\Uni\Games Tech\IN2026 Coursework Code\src\Asteroids.cpp(505,20): warning C4018: '<': signed/unsigned mismatch
+  Asteroid.cpp
+  Generating Code...
 Asteroid.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/SAFESEH' specification
   Asteroids.vcxproj -> D:\neilg\Uni\Games Tech\IN2026 Coursework Code\bin\Asteroids.exe
   ..\..\assets\asteroid.shape
