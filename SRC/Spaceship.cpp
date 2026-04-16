@@ -143,5 +143,4 @@ void Spaceship::OnCollision(const GameObjectList &objects)
 	}
 
 	mWorld->FlagForRemoval(GetThisPtr());
-	mWorld->FlagForRemoval(mAura->GetThisPtr());
 }

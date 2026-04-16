@@ -491,7 +491,7 @@ void Asteroids::CreateMenu()
 
 void Asteroids::HideMenu()
 {
-	// Toggles all menu label visiblity off
+	// Toggles all menu label visibility off
 	mStartLabel->SetVisible(false);
 	mDifficultyLabel->SetVisible(false);
 	mExtraLifeLabel->SetVisible(false);

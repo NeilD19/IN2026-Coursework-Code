@@ -25,14 +25,5 @@ bool PowerUp::CollisionTest(shared_ptr<GameObject> o)
 
 void PowerUp::OnCollision(const GameObjectList& objects)
 {
-	// Prevent other power ups and asteroids from picking up power up
-	for (auto& o : objects)
-	{
-		if (o->GetType() == GameObjectType("ExtraLife")) return;
-		if (o->GetType() == GameObjectType("Invulnerability")) return;
-		if (o->GetType() == GameObjectType("Fuel")) return;
-		if (o->GetType() == GameObjectType("Asteroid")) return;
-	}
-
 	mWorld->FlagForRemoval(GetThisPtr());
 }
