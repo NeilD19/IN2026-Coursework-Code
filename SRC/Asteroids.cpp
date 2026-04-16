@@ -126,7 +126,7 @@ void Asteroids::OnKeyPressed(uchar key, int x, int y)
 					mNameInput.pop_back();
 				}
 			}
-			else if (isalnum(key))
+			else if (isalnum(key) && mNameInput.size() < 16)
 			{
 				mNameInput += (char)key;
 			}
